@@ -14,7 +14,7 @@ pub mod fileio {
         }
         vec
     }
-    
+
     pub fn read_file_int(filename: String) -> Vec<i32> {
         let mut vec = Vec::new();
         if let Ok(lines) = read_lines(filename) {
@@ -34,11 +34,10 @@ pub mod fileio {
                 let mut inner = Vec::new();
                 if let Ok(row) = line {
                     for c in row.chars() {
-                        inner.push(c);    
+                        inner.push(c);
                     }
                     vec.push(inner);
                 }
-                
             }
         }
         vec
