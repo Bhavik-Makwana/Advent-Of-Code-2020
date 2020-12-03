@@ -14,6 +14,7 @@ pub mod fileio {
         }
         vec
     }
+    
     pub fn read_file_int(filename: String) -> Vec<i32> {
         let mut vec = Vec::new();
         if let Ok(lines) = read_lines(filename) {
@@ -21,6 +22,23 @@ pub mod fileio {
                 if let Ok(num) = line {
                     vec.push(num.parse().expect("Expected an integer"));
                 }
+            }
+        }
+        vec
+    }
+
+    pub fn read_file_2d(filename: String) -> Vec<Vec<char>> {
+        let mut vec = Vec::new();
+        if let Ok(lines) = read_lines(filename) {
+            for line in lines {
+                let mut inner = Vec::new();
+                if let Ok(row) = line {
+                    for c in row.chars() {
+                        inner.push(c);    
+                    }
+                    vec.push(inner);
+                }
+                
             }
         }
         vec
