@@ -4,23 +4,17 @@ pub fn part_one(map: &Vec<Vec<char>>) -> Result<i64, Error> {
 }
 
 pub fn part_two(map: &Vec<Vec<char>>) -> Result<i64, Error> {
+    // let arr: [(usize, usize); 5] = [(1,1), (3,1), (5,1), (7,1), (1,2)];
     Ok(helper(map, 1, 1).unwrap() * helper(map, 3, 1).unwrap() 
     * helper(map, 5, 1).unwrap() * helper(map, 7, 1).unwrap()
     * helper(map, 1, 2).unwrap())
 }
 
-fn helper(map: &Vec<Vec<char>>, r: i32, d: i32) -> Result<i64, Error> {
-    let mut total = 0;
-    let mut right = 0;
-    let mut down = 0;
+fn helper(map: &Vec<Vec<char>>, r: usize, d: usize) -> Result<i64, Error> { 
     let m = map[0].len();
     let n = map.len();
-    while down < n {
-        if map[down][right] == '#' {
-            total += 1;
-        }
-        down = (down + d as usize);
-        right = (right + r as usize) % m;
-    }
-    Ok(total)
+
+    Ok((0..n)
+    .filter(|i| map[(*i*d) % n][(*i*r) % m] == '#' && *i*d < n )
+    .count() as i64)
 }
