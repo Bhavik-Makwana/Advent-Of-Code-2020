@@ -55,55 +55,61 @@ pub fn part_two(passports: &Vec<Vec<String>>) -> Result<i32, Error> {
 }
 
 fn validate(key: &str, value: &str) -> bool {
-    if key == "byr" {
-        if 1920 <= value.parse::<i32>().unwrap() && value.parse::<i32>().unwrap() <= 2002 {
-            return true;
-        }
-    } else if key == "iyr" {
-        if 2010 <= value.parse::<i32>().unwrap() && value.parse::<i32>().unwrap() <= 2020 {
-            return true;
-        }
-    } else if key == "eyr" {
-        if 2020 <= value.parse::<i32>().unwrap() && value.parse::<i32>().unwrap() <= 2030 {
-            return true;
-        }
-    } else if key == "hgt" {
-        let unit = &value[value.len() - 2..value.len()];
-
-        if unit == "cm" {
-            let num = &value[0..value.len() - 2].parse::<i32>().unwrap();
-            if 150 <= *num && *num <= 193 {
+    match key {
+        "byr" => {
+            if 1920 <= value.parse::<i32>().unwrap() && value.parse::<i32>().unwrap() <= 2002 {
                 return true;
             }
-        } else if unit == "in" {
-            let num = &value[0..value.len() - 2].parse::<i32>().unwrap();
-            if 59 <= *num && *num <= 76 {
+        }
+        "iyr" => {
+            if 2010 <= value.parse::<i32>().unwrap() && value.parse::<i32>().unwrap() <= 2020 {
                 return true;
             }
-        } else {
-            return false;
         }
-    } else if key == "hcl" {
-        let re = Regex::new(r"^#(?:[0-9a-fA-F]{6})$").unwrap();
-        if re.is_match(value) {
-            return true;
+        "eyr" => {
+            if 2020 <= value.parse::<i32>().unwrap() && value.parse::<i32>().unwrap() <= 2030 {
+                return true;
+            }
         }
-    } else if key == "ecl" {
-        let mut valid_colors = HashSet::new();
-        valid_colors.insert("amb");
-        valid_colors.insert("blu");
-        valid_colors.insert("brn");
-        valid_colors.insert("gry");
-        valid_colors.insert("grn");
-        valid_colors.insert("hzl");
-        valid_colors.insert("oth");
-        if valid_colors.contains(value) {
-            return true;
+        "hgt" => {
+         
+            println!("{}", value);
+            let unit = &value[value.len() - 2..value.len()];
+            
+            match unit {
+                "cm" => {
+                    let num = &value[0..value.len() - 2].parse::<i32>().unwrap();
+                    if 150 <= *num && *num <= 193 {
+                        return true;
+                    }
+                }
+                "in" => {
+                    let num = &value[0..value.len() - 2].parse::<i32>().unwrap();
+                    if 59 <= *num && *num <= 76 {
+                        return true;
+                    }
+                }
+                _ => return false,
+            }
         }
-    } else if key == "pid" {
-        if value.len() == 9 {
-            return true;
+        "hcl" => {
+            let re = Regex::new(r"^#(?:[0-9a-fA-F]{6})$").unwrap();
+            if re.is_match(value) {
+                return true;
+            }
         }
+        "ecl" => {
+            let re = Regex::new(r"^(amb|blu|brn|gry|grn|hzl|oth)$").unwrap();
+            if re.is_match(value) {
+                return true;
+            }
+        }
+        "pid" => {
+            if value.len() == 9 {
+                return true;
+            }
+        }
+        _ => return false,
     }
 
     return false;
