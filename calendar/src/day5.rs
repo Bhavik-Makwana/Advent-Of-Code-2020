@@ -9,7 +9,7 @@ pub fn part_two(tickets: &Vec<String>) -> Result<i32, Error> {
     let mut seat_ids: Vec<i32> = tickets.iter().map(|ticket| get_seat_id(ticket)).collect();
     seat_ids.sort();
     // let x: Vec<_> = (1..seat_ids.len()-1).filter(|i| seat_ids[*i as usize] != seat_ids[(*i as usize)-1] +1).collect();
-    println!("{:?}", x);
+    // println!("{:?}", x);
     for i in 1..seat_ids.len()-1 {
         if seat_ids[i] != seat_ids[i - 1] + 1 {
             ans = seat_ids[i];
