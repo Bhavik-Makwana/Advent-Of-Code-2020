@@ -569,7 +569,13 @@ dim red bags contain 1 bright blue bag, 3 clear purple bags, 2 wavy crimson bags
 dull gold bags contain 4 wavy blue bags.
 faded blue bags contain 1 plaid turquoise bag, 2 vibrant indigo bags.
 shiny aqua bags contain 4 plaid cyan bags, 4 posh crimson bags.
-bright salmon bags contain 1 posh red bag, 1 shiny orange bag, 1 vibrant crimson bag.
+bright salmon bags contain 1 poshshiny gold bags contain 2 dark red bags.
+dark red bags contain 2 dark orange bags.
+dark orange bags contain 2 dark yellow bags.
+dark yellow bags contain 2 dark green bags.
+dark green bags contain 2 dark blue bags.
+dark blue bags contain 2 dark violet bags.
+dark violet bags contain no other bags. red bag, 1 shiny orange bag, 1 vibrant crimson bag.
 pale yellow bags contain 4 plaid cyan bags.
 plaid magenta bags contain 3 plaid brown bags, 5 pale yellow bags, 5 drab fuchsia bags, 1 clear black bag.
 vibrant maroon bags contain 4 dull tomato bags, 1 dotted indigo bag, 2 plaid teal bags, 2 shiny gold bags.
