@@ -3,19 +3,13 @@ use regex::Regex;
 use std::collections::HashSet;
 use std::fmt::Error;
 
-pub fn part_one(passports: &Vec<Vec<String>>) -> Result<i32, Error> {
+pub fn part_one(forms: &Vec<Vec<String>>) -> Result<i32, Error> {
     let mut total: i32 = 0;
     
-    for passport in passports.iter() {
-        let mut s = HashSet::new();
-        for line in passport.iter() {
-            for elem in line.chars() {
-                s.insert(elem);
-            }
-        }
-        total += s.len() as i32;
+    for form in forms.iter() {
+        total += form_set(form).len() as i32;
     }
-
+    
     Ok(total)
 }
 
@@ -34,7 +28,7 @@ pub fn part_two(forms: &Vec<Vec<String>>) -> Result<i32, Error> {
 
             
         } 
-        let mut iter = sets.iter();
+        
         let intersection = sets
         .iter()
         .skip(1)
@@ -46,4 +40,14 @@ pub fn part_two(forms: &Vec<Vec<String>>) -> Result<i32, Error> {
  
     }
     Ok(total)
+}
+
+fn form_set(form: &Vec<String>) -> HashSet<char> {
+    let mut s = HashSet::new();
+    for line in form.iter() {
+        for elem in line.chars() {
+            s.insert(elem);
+        }
+    }
+    s
 }
