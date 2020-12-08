@@ -9,6 +9,6 @@ fn main() {
 
     let ans = day8::part_one(&vec);
     println!("part one: {:#?}", ans.unwrap());
-    let ans2 = day8::part_two(&vec).unwrap();
-    println!("part two: {:#?}", ans2);
+    // let ans2 = day8::part_two(&vec).unwrap();
+    // println!("part two: {:#?}", ans2);
 }
