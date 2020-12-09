@@ -1,10 +1,16 @@
-use std::fmt::Error;
+use std::collections::HashSet;
 use std::collections::VecDeque;
+use std::fmt::Error;
+use std::iter::FromIterator;
 
 pub fn part_one(ciphertext: &Vec<i64>) -> Result<i64, Error> {
+    Ok(find_crash(&ciphertext).unwrap().1)
+}
+
+fn find_crash(ciphertext: &Vec<i64>) -> Result<(usize, i64), Error> {
     let queue_capacity = 25;
     let mut queue = VecDeque::with_capacity(queue_capacity);
-    
+
     for i in 0..queue_capacity {
         queue.push_back(ciphertext[i]);
     }
@@ -13,46 +19,48 @@ pub fn part_one(ciphertext: &Vec<i64>) -> Result<i64, Error> {
         if pair_exists(&queue, ciphertext[i]) {
             queue.pop_front();
             queue.push_back(ciphertext[i])
-        }
-        else {
-            return Ok(ciphertext[i]);
+        } else {
+            return Ok((i, ciphertext[i]));
         }
     }
-    Ok(-1)
+
+    Ok((0, -1))
 }
 
 fn pair_exists(q: &VecDeque<i64>, val: i64) -> bool {
+    let s: HashSet<&i64> = HashSet::from_iter(q.iter().clone());
     for i in (0..q.len()) {
-        for j in (i+1..q.len()) {
-            if q[i] + q[j] == val {
-                return true;
-            }
+        if s.contains(&(val - q[i])) {
+            return true;
         }
     }
     false
 }
 
 pub fn part_two(ciphertext: &Vec<i64>) -> Result<i64, Error> {
-    let crash_val = part_one(&ciphertext).unwrap();
-    let mut i = 0;
-    let mut j = 0;
-    while ciphertext[i] != crash_val {
-        while ciphertext[j] != crash_val {
-            if *(&ciphertext[i..j+1].iter().sum::<i64>()) == crash_val {
-                let x = *(&ciphertext[i..j+1].iter().min().unwrap()) + *(&ciphertext[i..j+1].iter().max().unwrap());
+    let (index, crash_val) = find_crash(&ciphertext).unwrap();
+
+
+    for i in 0..index {
+        let mut acc = ciphertext[i];
+        for j in i+1..index {
+            acc += ciphertext[j];
+            if acc == crash_val {
+                let x = *(&ciphertext[i..j + 1].iter().min().unwrap())
+                    + *(&ciphertext[i..j + 1].iter().max().unwrap());
                 return Ok(x);
             }
-            j += 1;
+            if acc > crash_val {
+                break;
+            }
         }
-        i += 1;
-        j = i;
     }
-    Ok(2)
+    Ok(-1)
 }
-
 
 #[cfg(test)]
 mod tests {
+
     // #[test]
     // fn part_one_sample() {
     //     let vec = crate::readfile::fileio::read_file_int(String::from("input/test/day9.txt"));
@@ -74,6 +82,10 @@ mod tests {
     #[test]
     fn part_two_actual() {
         let vec = crate::readfile::fileio::read_file_i64(String::from("input/day9.txt"));
+        let start_time = Utc::now().time();
         assert_eq!(crate::day9::part_two(&vec), Ok(75678618));
+        let end_time = Utc::now().time();
+        let diff = end_time - start_time;
+        println!("time: {}", diff);
     }
 }

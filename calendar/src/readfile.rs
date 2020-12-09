@@ -26,7 +26,7 @@ pub mod fileio {
         }
         vec
     }
-    
+
     pub fn read_file_i64(filename: String) -> Vec<i64> {
         let mut vec = Vec::new();
         if let Ok(lines) = read_lines(filename) {
