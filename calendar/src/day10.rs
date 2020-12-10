@@ -22,8 +22,8 @@ pub fn part_one(input: &Vec<i64>) -> Result<i64, Error> {
     Ok(one * three)
 }
 
-pub fn part_two(voltages: &Vec<i64>) -> Result<i64, Error> {
-    let mut joltages = voltages.clone();
+pub fn part_two(input: &Vec<i64>) -> Result<i64, Error> {
+    let mut joltages = input.clone();
     joltages.push(0);
     joltages.sort();
 
