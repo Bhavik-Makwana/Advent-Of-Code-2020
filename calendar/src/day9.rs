@@ -29,13 +29,10 @@ fn find_crash(ciphertext: &Vec<i64>) -> Result<(usize, i64), Error> {
 
 fn pair_exists(q: &VecDeque<i64>, val: i64) -> bool {
     let s: HashSet<&i64> = HashSet::from_iter(q.iter().clone());
-
-    for i in (0..q.len()) {
-        if s.contains(&(val - q[i])) {
-            return true;
-        }
+    match (0..q.len()).find(|i| s.contains(&(val - q[*i]))) {
+        Some(_) => true,
+        None => false,
     }
-    false
 }
 
 pub fn part_two(ciphertext: &Vec<i64>) -> Result<i64, Error> {

@@ -1,4 +1,3 @@
-// mod day1;
 extern crate time;
 use time::PreciseTime;
 
