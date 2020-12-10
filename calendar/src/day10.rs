@@ -1,5 +1,5 @@
 use std::collections::HashSet;
-use std::collections::VecDeque;
+use std::collections::HashMap;
 use std::fmt::Error;
 use std::iter::FromIterator;
 
@@ -27,7 +27,12 @@ pub fn part_two(input: &Vec<i64>) -> Result<i64, Error> {
     joltages.push(0);
     joltages.sort();
 
-    Ok(dp_part_two(&joltages))
+    // Ok(dp_part_two(&joltages))
+    println!("{}", dp_part_two(&joltages));
+    let lookup = HashSet::from_iter(joltages.iter().cloned());
+    let mut memo: HashMap<i64, i64> = HashMap::new();
+    let largest_val = joltages.iter().max().unwrap();
+    Ok(memoization_part_two(*largest_val, &mut memo, &lookup))
 }
 fn dp_part_two(joltages: &Vec<i64>) -> i64 {
     let n = joltages.len();
@@ -47,6 +52,25 @@ fn dp_part_two(joltages: &Vec<i64>) -> i64 {
         }
     }
     dp[dp.len() - 1]
+}
+
+fn memoization_part_two(jolt: i64, memo: &mut HashMap<i64, i64>, lookup: &HashSet<i64>) -> i64 {
+    if lookup.contains(&jolt) {
+        if jolt == 1 || jolt == 0 {
+            return 1;
+        } else if jolt == 2 {
+            return 2;
+        }
+        if memo.contains_key(&jolt) {
+            return *memo.get(&jolt).unwrap();
+        }
+        let res = memoization_part_two(jolt - 3, memo, &lookup)
+            + memoization_part_two(jolt - 2, memo, &lookup)
+            + memoization_part_two(jolt - 1, memo, &lookup);
+        memo.insert(jolt,res);
+        return res;
+    }
+    0
 }
 
 #[cfg(test)]
