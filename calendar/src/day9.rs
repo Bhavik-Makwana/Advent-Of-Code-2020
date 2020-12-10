@@ -14,7 +14,7 @@ fn find_crash(ciphertext: &Vec<i64>) -> Result<(usize, i64), Error> {
     for i in 0..queue_capacity {
         queue.push_back(ciphertext[i]);
     }
-
+    // &ciphertext[queue.len()..ciphertext.len()].iter().filter(|e| pair_exists(&queue, e)).
     for i in queue.len()..ciphertext.len() {
         if pair_exists(&queue, ciphertext[i]) {
             queue.pop_front();
@@ -29,6 +29,7 @@ fn find_crash(ciphertext: &Vec<i64>) -> Result<(usize, i64), Error> {
 
 fn pair_exists(q: &VecDeque<i64>, val: i64) -> bool {
     let s: HashSet<&i64> = HashSet::from_iter(q.iter().clone());
+
     for i in (0..q.len()) {
         if s.contains(&(val - q[i])) {
             return true;
@@ -40,10 +41,9 @@ fn pair_exists(q: &VecDeque<i64>, val: i64) -> bool {
 pub fn part_two(ciphertext: &Vec<i64>) -> Result<i64, Error> {
     let (index, crash_val) = find_crash(&ciphertext).unwrap();
 
-
     for i in 0..index {
         let mut acc = ciphertext[i];
-        for j in i+1..index {
+        for j in i + 1..index {
             acc += ciphertext[j];
             if acc == crash_val {
                 let x = *(&ciphertext[i..j + 1].iter().min().unwrap())
@@ -82,10 +82,7 @@ mod tests {
     #[test]
     fn part_two_actual() {
         let vec = crate::readfile::fileio::read_file_i64(String::from("input/day9.txt"));
-        let start_time = Utc::now().time();
         assert_eq!(crate::day9::part_two(&vec), Ok(75678618));
-        let end_time = Utc::now().time();
-        let diff = end_time - start_time;
-        println!("time: {}", diff);
+        
     }
 }
