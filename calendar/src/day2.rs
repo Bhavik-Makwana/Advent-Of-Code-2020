@@ -1,4 +1,6 @@
-pub fn part_one(codes: &Vec<String>) -> i32 {
+use std::fmt::Error;
+
+pub fn part_one(codes: &Vec<String>) -> Result<i32, Error> {
     let mut total = 0;
     for code in codes.iter() {
         let mut iter = code.split_whitespace();
@@ -7,21 +9,17 @@ pub fn part_one(codes: &Vec<String>) -> i32 {
         let max: i32 = range.next().unwrap().parse().unwrap();
         let c = &iter.next().unwrap()[0..1].chars().next().unwrap();
         let pass = iter.next().unwrap();
-        let mut count = 0;
 
-        for i in pass.chars() {
-            if i == *c {
-                count += 1;
-            }
-        }
+        let count = pass.chars().filter(|i| i == c).count() as i32;
+
         if min <= count && count <= max {
             total += 1;
         }
     }
-    total
+    Ok(total)
 }
 
-pub fn part_two(codes: &Vec<String>) -> i32 {
+pub fn part_two(codes: &Vec<String>) -> Result<i32, Error> {
     let mut total = 0;
     for code in codes.iter() {
         let mut iter = code.split_whitespace();
@@ -38,5 +36,5 @@ pub fn part_two(codes: &Vec<String>) -> i32 {
         }
     }
 
-    total
+    Ok(total)
 }

@@ -25,8 +25,6 @@ pub fn part_two(forms: &Vec<Vec<String>>) -> Result<i32, Error> {
                     s.insert(elem);
             }
             sets.push(s);
-
-            
         } 
         
         let intersection = sets
