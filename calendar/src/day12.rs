@@ -1,45 +1,49 @@
 use std::fmt::Error;
 
-// enum direction {
-//     NORTH(i32),
+struct Ship {
+    east: i32,
+    north: i32,
+    angle: i32,
+}
 
-// }
+struct Waypoint {
+    east: i32,
+    north: i32
+}
+
 pub fn part_one(input: &Vec<String>) -> Result<i32, Error> {
-    let mut north: i32 = 0;
-    let mut east: i32 = 0;
-    let mut angle: i32 = 90;
+    let mut ship = Ship { east: 0, north: 0, angle: 90};
     
     for direction in input.iter() {
         let (action, amount) = direction.split_at(1);
         let amount = amount.parse::<i32>().unwrap();
         match action {
-            "N" => north += amount,
-            "E" => east += amount,
-            "S" => north -= amount,
-            "W" => east -= amount,
+            "N" => ship.north += amount,
+            "E" => ship.east += amount,
+            "S" => ship.north -= amount,
+            "W" => ship.east -= amount,
             "F" => {
-                match angle {
-                    0 => north += amount,
-                    90 => east += amount,
-                    180 => north -= amount,
-                    270 => east -= amount,
+                match ship.angle {
+                    0 => ship.north += amount,
+                    90 => ship.east += amount,
+                    180 => ship.north -= amount,
+                    270 => ship.east -= amount,
                     _ => (),
                 }
             }
-            "L" => angle = (angle - amount).rem_euclid(360),
-            "R" => angle = (angle + amount).rem_euclid(360),
+            "L" => ship.angle = (ship.angle - amount).rem_euclid(360),
+            "R" => ship.angle = (ship.angle + amount).rem_euclid(360),
             _ => (),
         }
     }
-    println!("{} {}", east, north);
-    println!("{}", -180 % 360);
 
-    Ok(north.abs() + east.abs())
+    Ok(ship.north.abs() + ship.east.abs())
 }
 
+
 pub fn part_two(input: &Vec<String>) -> Result<i32, Error> {
-    let mut waypoint_coords: Vec<i32> = vec![10, 1];
-    let mut ship_coords: Vec<i32> = vec![0, 0];
+    let mut waypoint = Waypoint { east: 10, north: 1};
+    let mut ship = Ship { east: 0, north: 0, angle: 0};
 
     for direction in input.iter() {
         let (action, amount) = direction.split_at(1);
@@ -47,35 +51,35 @@ pub fn part_two(input: &Vec<String>) -> Result<i32, Error> {
         
         match action {
             "F" => {
-                ship_coords[0] += waypoint_coords[0] * amount;
-                ship_coords[1] += waypoint_coords[1] * amount;
+                ship.east += waypoint.east * amount;
+                ship.north += waypoint.north * amount;
             },
-            "N" => waypoint_coords[1] += amount,
-            "E" => waypoint_coords[0] += amount,
-            "S" => waypoint_coords[1] -= amount,
-            "W" => waypoint_coords[0] -= amount,
+            "N" => waypoint.north += amount,
+            "E" => waypoint.east += amount,
+            "S" => waypoint.north -= amount,
+            "W" => waypoint.east -= amount,
             _ => {
                 match &direction[..] {
                     "L180" | "R180" => {
-                        waypoint_coords[0] = -waypoint_coords[0];
-                        waypoint_coords[1] = -waypoint_coords[1];
+                        waypoint.east = -waypoint.east;
+                        waypoint.north = -waypoint.north;
                     },
                     "L90" | "R270" => {
-                        let temp = waypoint_coords[0];
-                        waypoint_coords[0] = -waypoint_coords[1];
-                        waypoint_coords[1] = temp;
+                        let temp = waypoint.east;
+                        waypoint.east = -waypoint.north;
+                        waypoint.north = temp;
                     }
                     "R90" | "L270" => {
-                        let temp = waypoint_coords[0];
-                        waypoint_coords[0] = waypoint_coords[1];
-                        waypoint_coords[1] = -temp;
+                        let temp = waypoint.east;
+                        waypoint.east = waypoint.north;
+                        waypoint.north = -temp;
                     }
                     _ => (),
                 }
             }
         }
     }
-    Ok(ship_coords[0].abs() + ship_coords[1].abs())
+    Ok(ship.east.abs() + ship.north.abs())
 }
 
 
