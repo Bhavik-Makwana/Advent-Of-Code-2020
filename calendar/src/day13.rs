@@ -1,4 +1,3 @@
-use modinverse::modinverse;
 use std::fmt::Error;
 
 pub fn part_one(input: &Vec<String>) -> Result<i32, Error> {
@@ -31,6 +30,7 @@ pub fn part_one(input: &Vec<String>) -> Result<i32, Error> {
 
     Ok((max - departure_time) * timetable[index].parse::<i32>().unwrap())
 }
+
 // https://www.dave4math.com/mathematics/chinese-remainder-theorem/
 // https://brilliant.org/wiki/chinese-remainder-theorem/
 pub fn part_two(input: &Vec<String>) -> Result<i128, Error> {
@@ -44,24 +44,27 @@ pub fn part_two(input: &Vec<String>) -> Result<i128, Error> {
     let ans = timetable
         .iter()
         .enumerate()
-        .filter(|(i, x)| *x != &"x")
-        .fold(0, |acc, (i, bus)| {
-            let bus_num = bus.parse::<i128>().unwrap();
-            let a = bus_num - i as i128;
-            let y = M / bus_num;
-            let z = gcdExtended(y, bus_num).1;
-            acc + a * y * z
-        });
+        .filter(|(_, x)| *x != &"x")
+        .fold(0, |acc, (i, bus)| acc + crt(bus, i, M));
 
     Ok(ans.rem_euclid(M))
 }
 
-fn gcdExtended(a: i128, b: i128) -> (i128, i128, i128) {
+fn crt(bus: &str, i: usize, M: i128) -> i128 {
+    let bus_num = bus.parse::<i128>().unwrap();
+    let a = bus_num - i as i128;
+    let y = M / bus_num;
+    let z = gcd_extended(y, bus_num).1;
+    a*y*z
+}
+
+// ref GeeksForGeeks
+fn gcd_extended(a: i128, b: i128) -> (i128, i128, i128) {
     // Base Case
     if a == 0 {
         return (b, 0, 1);
     }
-    let (gcd, x1, y1) = gcdExtended(b % a, a);
+    let (gcd, x1, y1) = gcd_extended(b % a, a);
 
     // Update x and y using results of recursive call
     let x = y1 - (b / a) * x1;

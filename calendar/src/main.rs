@@ -15,5 +15,5 @@ fn main() {
     let ans2 = day13::part_two(&vec).unwrap();
     let end = PreciseTime::now();
     println!("part two: {:#?}", ans2);
-    println!("took: {:?}s", start.to(end));
+    println!("took: {} seconds", start.to(end));
 }
