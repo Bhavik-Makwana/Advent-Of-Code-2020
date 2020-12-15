@@ -7,6 +7,7 @@ pub fn part_one(input: &Vec<String>) -> Result<i64, Error> {
     let mut mem = HashMap::new();
     for line in input.iter() {
         if line.contains("mask") {
+            update_memory(&mask, &codes, &mut mem);
             let mut iter = line.split(" ");
             iter.next();
             iter.next();
@@ -14,22 +15,16 @@ pub fn part_one(input: &Vec<String>) -> Result<i64, Error> {
             codes = Vec::new();
         } else {
             let mut x = line.replace("mem[", "");
-            x = x.replace("]", "");
-            x = x.replace("=", "");
-            x = x.replace("  ", " ");
+            x = x.replace("]", "").replace("=", "").replace("  ", " ");
             let mut iter = x.split(" ");
             let addr = iter.next().unwrap().parse::<i64>().unwrap();
             let instruction = iter.next().unwrap().parse::<i64>().unwrap();
             codes.push(vec![addr, instruction]);
-            update_memory(&mask, &codes, &mut mem);
+            
         }
     }
-    let mut total: i64 = 0;
-    for (key, value) in mem.iter() {
-        println!("{} {}", key, value);
-        total += value;
-    }
-    Ok(total)
+    update_memory(&mask, &codes, &mut mem);
+    Ok(mem.iter().fold(0, |acc, (_, value)| acc+value))
 }
 
 fn update_memory(mask: &String, codes: &Vec<Vec<i64>>, mem: &mut HashMap<i64, i64>) {
@@ -37,8 +32,9 @@ fn update_memory(mask: &String, codes: &Vec<Vec<i64>>, mem: &mut HashMap<i64, i6
         let address = code[0];
         let mut inst: Vec<char> = format!("{:036b}", code[1]).chars().collect();
         for (i, m) in mask.chars().enumerate() {
-            if m == '0' || m == '1' {
-                inst[i] = m;
+            match m {
+                '0' | '1' => inst[i] = m,
+                _ => (),
             }
         }
         let inst_str: String = inst.iter().collect();
@@ -52,6 +48,7 @@ pub fn part_two(input: &Vec<String>) -> Result<i64, Error> {
     let mut mem = HashMap::new();
     for line in input.iter() {
         if line.contains("mask") {
+            update_memory2(&mask, &codes, &mut mem);
             let mut iter = line.split(" ");
             iter.next();
             iter.next();
@@ -59,21 +56,16 @@ pub fn part_two(input: &Vec<String>) -> Result<i64, Error> {
             codes = Vec::new();
         } else {
             let mut x = line.replace("mem[", "");
-            x = x.replace("]", "");
-            x = x.replace("=", "");
-            x = x.replace("  ", " ");
+            x = x.replace("]", "").replace("=", "").replace("  ", " ");
             let mut iter = x.split(" ");
             let addr = iter.next().unwrap().parse::<i64>().unwrap();
             let instruction = iter.next().unwrap().parse::<i64>().unwrap();
             codes.push(vec![addr, instruction]);
-            update_memory2(&mask, &codes, &mut mem);
+            
         }
     }
-    let mut total: i64 = 0;
-    for (key, value) in mem.iter() {
-        total += value;
-    }
-    Ok(total)
+    update_memory2(&mask, &codes, &mut mem);
+    Ok(mem.iter().fold(0, |acc, (_, value)| acc+value))
 }
 
 fn update_memory2(mask: &String, codes: &Vec<Vec<i64>>, mem: &mut HashMap<i64, i64>) {
@@ -104,7 +96,7 @@ fn generate_binary(
     value: i64,
     mem: &mut HashMap<i64, i64>,
 ) {
-    if (length > 0) {
+    if length > 0 {
         let mut string_clone = string.clone();
         string_clone.push('0');
         generate_binary(length - 1, string_clone, address, value, mem);
