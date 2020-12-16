@@ -1,18 +1,18 @@
 extern crate time;
 use time::PreciseTime;
 
-mod day15;
+mod day16;
 mod readfile;
 
 pub use crate::readfile::fileio;
 
 fn main() {
-    let vec = fileio::read_file(String::from("input/day15.txt"));
+    let vec = fileio::read_file(String::from("input/day16.txt"));
 
-    let ans = day15::part_one(&vec);
+    let ans = day16::part_one(&vec);
     println!("part one: {:#?}", ans.unwrap());
     let start = PreciseTime::now();
-    let ans2 = day15::part_two(&vec).unwrap();
+    let ans2 = day16::part_two(&vec).unwrap();
     let end = PreciseTime::now();
     println!("part two: {:#?}", ans2);
     println!("took: {} seconds", start.to(end));
