@@ -4,12 +4,13 @@ use std::iter::Peekable;
 // https://github.com/adrianN/simple_rust_parser/blob/master/src/main.rs
 // wish I could say I built this all from scratch this morning, but I heavly referenced
 // this github repo, thank you adrian
+
 #[derive(Debug, Clone)]
 pub enum GrammarItem {
     Product,
     Sum,
     Number(u64),
-    Paren
+    Paren,
 }
 
 #[derive(Debug, Clone)]
@@ -36,7 +37,6 @@ impl ParseNode {
 
 fn lex(input: &String) -> Result<Vec<LexItem>, String> {
     let mut result = Vec::new();
-
     let mut it = input.chars().peekable();
     while let Some(&c) = it.peek() {
         match c {
@@ -65,7 +65,10 @@ fn lex(input: &String) -> Result<Vec<LexItem>, String> {
 }
 
 fn get_number<T: Iterator<Item = char>>(c: char, iter: &mut Peekable<T>) -> u64 {
-    let mut number = c.to_string().parse::<u64>().expect("The caller should have passed a digit.");
+    let mut number = c
+        .to_string()
+        .parse::<u64>()
+        .expect("The caller should have passed a digit.");
     while let Some(Ok(digit)) = iter.peek().map(|c| c.to_string().parse::<u64>()) {
         number = number * 10 + digit;
         iter.next();
@@ -75,19 +78,29 @@ fn get_number<T: Iterator<Item = char>>(c: char, iter: &mut Peekable<T>) -> u64 
 
 pub fn parse(input: &String) -> Result<ParseNode, String> {
     let tokens = lex(input)?;
-    parse_expr(&tokens, 0).and_then(|(n, i)| if i == tokens.len() {
-        Ok(n)
-    } else {
-        Err(format!("Expected end of input, found {:?} at {}", tokens[i], i))
+    parse_expr(&tokens, 0).and_then(|(n, i)| {
+        if i == tokens.len() {
+            Ok(n)
+        } else {
+            Err(format!(
+                "Expected end of input, found {:?} at {}",
+                tokens[i], i
+            ))
+        }
     })
 }
 
 pub fn parse_part_one(input: &String) -> Result<ParseNode, String> {
     let tokens = lex(input)?;
-    parse_part_one_expr(&tokens, 0).and_then(|(n, i)| if i == tokens.len() {
-        Ok(n)
-    } else {
-        Err(format!("Expected end of input, found {:?} at {}", tokens[i], i))
+    parse_part_one_expr(&tokens, 0).and_then(|(n, i)| {
+        if i == tokens.len() {
+            Ok(n)
+        } else {
+            Err(format!(
+                "Expected end of input, found {:?} at {}",
+                tokens[i], i
+            ))
+        }
     })
 }
 
@@ -103,44 +116,38 @@ fn parse_part_one_expr(tokens: &Vec<LexItem>, pos: usize) -> Result<(ParseNode, 
             let (rhs, i) = parse_part_one_expr(tokens, next_pos + 1)?;
             sum.children.push(rhs);
             Ok((sum, i))
-        },
+        }
         Some(&LexItem::Op('*')) => {
-            // recurse on the summand
+            // recurse on the product
             let mut product = ParseNode::new();
             product.entry = GrammarItem::Product;
             product.children.push(node_term);
             let (rhs, i) = parse_part_one_expr(tokens, next_pos + 1)?;
             product.children.push(rhs);
             Ok((product, i))
-        },
-        _ => {
-            // we have just the summand production, nothing more.
-            Ok((node_term, next_pos))
         }
+        _ => Ok((node_term, next_pos)),
     }
 }
 
 fn parse_expr(tokens: &Vec<LexItem>, pos: usize) -> Result<(ParseNode, usize), String> {
-    let (node_summand, next_pos) = parse_summand(tokens, pos)?;
+    let (node_product, next_pos) = parse_product(tokens, pos)?;
     let c = tokens.get(next_pos);
     match c {
         Some(&LexItem::Op('*')) => {
-            // recurse on the summand
+            // recurse on the product
             let mut product = ParseNode::new();
             product.entry = GrammarItem::Product;
-            product.children.push(node_summand);
+            product.children.push(node_product);
             let (rhs, i) = parse_expr(tokens, next_pos + 1)?;
             product.children.push(rhs);
             Ok((product, i))
-        },
-        _ => {
-            // we have just the summand production, nothing more.
-            Ok((node_summand, next_pos))
         }
+        _ => Ok((node_product, next_pos)),
     }
 }
 
-fn parse_summand(tokens: &Vec<LexItem>, pos: usize) -> Result<(ParseNode, usize), String> {
+fn parse_product(tokens: &Vec<LexItem>, pos: usize) -> Result<(ParseNode, usize), String> {
     let (node_term, next_pos) = parse_term(tokens, pos)?;
     let c = tokens.get(next_pos);
     match c {
@@ -149,20 +156,18 @@ fn parse_summand(tokens: &Vec<LexItem>, pos: usize) -> Result<(ParseNode, usize)
             let mut sum = ParseNode::new();
             sum.entry = GrammarItem::Sum;
             sum.children.push(node_term);
-            let (rhs, i) = parse_summand(tokens, next_pos + 1)?;
+            let (rhs, i) = parse_product(tokens, next_pos + 1)?;
             sum.children.push(rhs);
             Ok((sum, i))
-        },
-        _ => {
-            // we have just the term production, nothing more.
-            Ok((node_term, next_pos))
         }
+        _ => Ok((node_term, next_pos)),
     }
 }
 
 fn parse_term(tokens: &Vec<LexItem>, pos: usize) -> Result<(ParseNode, usize), String> {
-    let c: &LexItem = tokens.get(pos)
-        .ok_or(String::from("Unexpected end of input, expected paren or number"))?;
+    let c: &LexItem = tokens.get(pos).ok_or(String::from(
+        "Unexpected end of input, expected paren or number",
+    ))?;
     match c {
         &LexItem::Num(n) => {
             let mut node = ParseNode::new();
@@ -180,33 +185,34 @@ fn parse_term(tokens: &Vec<LexItem>, pos: usize) -> Result<(ParseNode, usize), S
                                 paren.children.push(node);
                                 Ok((paren, next_pos + 1))
                             } else {
-                                Err(format!("Expected ')' but found {} at {}",
-                                            c2,
-                                            next_pos))
+                                Err(format!("Expected ')' but found {} at {}", c2, next_pos))
                             }
                         } else {
-                            Err(format!("Expected closing paren at {} but found {:?}",
-                                        next_pos,
-                                        tokens.get(next_pos)))
+                            Err(format!(
+                                "Expected closing paren at {} but found {:?}",
+                                next_pos,
+                                tokens.get(next_pos)
+                            ))
                         }
                     })
                 }
                 _ => Err(format!("Expected paren at {} but found {:?}", pos, c)),
             }
         }
-        _ => {
-            Err(format!("Unexpected token {:?}, expected paren or number", {
-                c
-            }))
-        }
+        _ => Err(format!(
+            "Unexpected token {:?}, expected paren or number",
+            { c }
+        )),
     }
 }
 
 pub fn print(tree: &ParseNode) -> String {
     match tree.entry {
         GrammarItem::Paren => {
-            format!("({})",
-                    print(tree.children.get(0).expect("parens need one child")))
+            format!(
+                "({})",
+                print(tree.children.get(0).expect("parens need one child"))
+            )
         }
         GrammarItem::Sum => {
             let lhs = print(tree.children.get(0).expect("sums need two children"));
@@ -224,25 +230,24 @@ pub fn print(tree: &ParseNode) -> String {
 
 pub fn calculate(tree: &ParseNode) -> u64 {
     match tree.entry {
-        GrammarItem::Paren => {
-            calculate(tree.children.get(0).expect("parens need one child"))
-        }
+        GrammarItem::Paren => calculate(tree.children.get(0).expect("parens need one child")),
         GrammarItem::Sum => {
             let lhs = calculate(tree.children.get(0).expect("sums need two children"));
             let rhs = calculate(tree.children.get(1).expect("sums need two children"));
-            // println!("{} + {}", lhs, rhs);
             lhs + rhs
         }
         GrammarItem::Product => {
             let lhs = calculate(tree.children.get(0).expect("products need two children"));
             let rhs = calculate(tree.children.get(1).expect("products need two children"));
-            // println!("{} * {}", lhs, rhs);
-            lhs * rhs 
+            lhs * rhs
         }
         GrammarItem::Number(n) => n,
     }
 }
 
+// GRAMMAR
+// Expr := Term + Term | Term * Term | ( Expr )
+// Term := [0..9]+
 pub fn part_one(program: &Vec<String>) -> Result<u64, Error> {
     let mut total = 0;
     for i in program.iter() {
@@ -253,7 +258,10 @@ pub fn part_one(program: &Vec<String>) -> Result<u64, Error> {
     Ok(total)
 }
 
-
+// GRAMMAR
+// Expr := Term + Term | ( Expr )
+// Prod := Term * Term
+// Term := [0..9]+
 pub fn part_two(program: &Vec<String>) -> Result<u64, Error> {
     let mut total = 0;
     for i in program.iter() {
@@ -263,8 +271,6 @@ pub fn part_two(program: &Vec<String>) -> Result<u64, Error> {
     }
     Ok(total)
 }
-
-
 
 #[cfg(test)]
 mod tests {
