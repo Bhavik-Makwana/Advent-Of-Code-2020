@@ -92,41 +92,38 @@ pub fn parse(input: &String) -> Result<ParseNode, String> {
 
 pub fn parse_part_one(input: &String) -> Result<ParseNode, String> {
     let tokens = lex(input)?;
-    parse_part_one_expr(&tokens, 0).and_then(|(n, i)| {
-        if i == tokens.len() {
-            Ok(n)
-        } else {
-            Err(format!(
-                "Expected end of input, found {:?} at {}",
-                tokens[i], i
-            ))
-        }
+    parse_part_one_expr(&tokens, 0).and_then(|(n, i)| if i == tokens.len() {
+        Ok(n)
+    } else {
+        Err(format!("Expected end of input, found {:?} at {}", tokens[i], i))
     })
 }
 
 fn parse_part_one_expr(tokens: &Vec<LexItem>, pos: usize) -> Result<(ParseNode, usize), String> {
-    let (node_term, next_pos) = parse_term(tokens, pos)?;
+    let (node_term, next_pos) = parse_part_one_term(tokens, pos)?;
     let c = tokens.get(next_pos);
     match c {
         Some(&LexItem::Op('+')) => {
-            // recurse on the part_one_expr
+            // recurse on the expr
             let mut sum = ParseNode::new();
             sum.entry = GrammarItem::Sum;
             sum.children.push(node_term);
             let (rhs, i) = parse_part_one_expr(tokens, next_pos + 1)?;
             sum.children.push(rhs);
             Ok((sum, i))
-        }
+        },
         Some(&LexItem::Op('*')) => {
-            // recurse on the product
+            // recurse on the summand
             let mut product = ParseNode::new();
             product.entry = GrammarItem::Product;
             product.children.push(node_term);
             let (rhs, i) = parse_part_one_expr(tokens, next_pos + 1)?;
             product.children.push(rhs);
             Ok((product, i))
+        },
+        _ => {
+            Ok((node_term, next_pos))
         }
-        _ => Ok((node_term, next_pos)),
     }
 }
 
@@ -161,6 +158,48 @@ fn parse_product(tokens: &Vec<LexItem>, pos: usize) -> Result<(ParseNode, usize)
             Ok((sum, i))
         }
         _ => Ok((node_term, next_pos)),
+    }
+}
+
+fn parse_part_one_term(tokens: &Vec<LexItem>, pos: usize) -> Result<(ParseNode, usize), String> {
+    let c: &LexItem = tokens.get(pos).ok_or(String::from(
+        "Unexpected end of input, expected paren or number",
+    ))?;
+    match c {
+        &LexItem::Num(n) => {
+            let mut node = ParseNode::new();
+            node.entry = GrammarItem::Number(n);
+            Ok((node, pos + 1))
+        }
+        &LexItem::Paren(c) => {
+            match c {
+                ')' => {
+                    parse_part_one_expr(tokens, pos + 1).and_then(|(node, next_pos)| {
+                        if let Some(&LexItem::Paren(c2)) = tokens.get(next_pos) {
+                            if c2 == '(' {
+                                // okay!
+                                let mut paren = ParseNode::new();
+                                paren.children.push(node);
+                                Ok((paren, next_pos + 1))
+                            } else {
+                                Err(format!("Expected ')' but found {} at {}", c2, next_pos))
+                            }
+                        } else {
+                            Err(format!(
+                                "Expected closing paren at {} but found {:?}",
+                                next_pos,
+                                tokens.get(next_pos)
+                            ))
+                        }
+                    })
+                }
+                _ => Err(format!("Expected paren at {} but found {:?}", pos, c)),
+            }
+        }
+        _ => Err(format!(
+            "Unexpected token {:?}, expected paren or number",
+            { c }
+        )),
     }
 }
 
@@ -205,6 +244,7 @@ fn parse_term(tokens: &Vec<LexItem>, pos: usize) -> Result<(ParseNode, usize), S
         )),
     }
 }
+
 
 pub fn print(tree: &ParseNode) -> String {
     match tree.entry {
@@ -278,24 +318,24 @@ mod tests {
     #[test]
     fn part_one_sample() {
         let vec = crate::readfile::fileio::read_file(String::from("input/test/day18.txt"));
-        assert_eq!(crate::day18::part_one(&vec), Ok(231));
+        assert_eq!(crate::day18::part_one(&vec), Ok(437));
     }
 
-    // #[test]
-    // fn part_one_actual() {
-    //     let vec = crate::readfile::fileio::read_file_2d(String::from("input/day18.txt"));
-    //     assert_eq!(crate::day18::part_one(&vec), Ok(276));
-    // }
+    #[test]
+    fn part_one_actual() {
+        let vec = crate::readfile::fileio::read_file(String::from("input/day18.txt"));
+        assert_eq!(crate::day18::part_one(&vec), Ok(15285807527593));
+    }
 
-    // #[test]
-    // fn part_two_sample() {
-    //     let vec = crate::readfile::fileio::read_file_2d(String::from("input/test/day18.txt"));
-    //     assert_eq!(crate::day18::part_two(&vec), Ok(848));
-    // }
+    #[test]
+    fn part_two_sample() {
+        let vec = crate::readfile::fileio::read_file(String::from("input/test/day18.txt"));
+        assert_eq!(crate::day18::part_two(&vec), Ok(1445));
+    }
 
-    // #[test]
-    // fn part_two_actual() {
-    //     let vec = crate::readfile::fileio::read_file_2d(String::from("input/day18.txt"));
-    //     assert_eq!(crate::day18::part_two(&vec), Ok(2136));
-    // }
+    #[test]
+    fn part_two_actual() {
+        let vec = crate::readfile::fileio::read_file(String::from("input/day18.txt"));
+        assert_eq!(crate::day18::part_two(&vec), Ok(461295257566346));
+    }
 }
