@@ -42,65 +42,47 @@ pub fn part_one(input: &Vec<String>) -> Result<i32, Error> {
         }
     }
     let mut total = 0;
-    // println!("{:?}", test_string);
-    // println!("{:?}", grammar);
-
     for string in test_string.iter() {
-        // println!("{}", cyk(string, &grammar, &terminals));
         if cyk(string, &grammar, &terminals) {
             total += 1;
-            // println!("r");
         }
     }
     println!("{:?}", total);
-    // println!("");
-    // println!("{:?}", test_string);
-    // println!("hashset {:?}", terminals);
-    // println!("{}", cyk(&String::from("aab"), &grammar));
     Ok(total) // 156
 }
-//
+
 fn cyk(
     string: &String,
     grammar: &HashMap<String, Vec<Vec<String>>>,
     terminals: &HashSet<String>,
 ) -> bool {
-    let n = string.len() + 1;
-    let r = terminals.len();
-    // println!("{} {}", n, r);
+    let n = string.len() ;
     let mut P = vec![vec![HashSet::new(); n]; n];
-    // println!("{:?}", grammar);
-    for s in 1..n {
+    for s in 0..n {
         for (key, value) in grammar.iter() {
             if value.len() == 1 {
-                if (value[0][0] == "a" && string.chars().nth(s-1).unwrap() == 'a')
-                    || (value[0][0] == "b" && string.chars().nth(s-1).unwrap() == 'b')
+                if (value[0][0] == "a" && string.chars().nth(s).unwrap() == 'a')
+                    || (value[0][0] == "b" && string.chars().nth(s).unwrap() == 'b')
                 {
-                    P[1][s].insert(key);
+                    P[0][s].insert(key);
                 }
             }
         }
     }
 
-    for l in 2..n  {
+    for l in 1..n  {
         // row
-        for s in 1..n - l + 1 {
+        for s in 0..n - l  {
             // col in the row
-            for p in 1..l  {
+            for p in 0..l  {
                 //  previous
                 for (key, value) in grammar.iter() {
                     for v in value.iter() {
                         // R_a -> R_b R_c
-                        if value[0][0] == "a" || value[0][0] == "b" {
-                            continue;
-                        }
-                        // println!("3values: {:?}", v);
-                        if P[p][s].contains(&v[0]) && P[l - p][s + p].contains(&v[1]) {
-                            
-                            // println!("P[{}][{}]: {:?}", s, p, P[s][p]);
-                            // println!("l {} p {} l-p {}", l, p, l-p);
-                            // println!("P[{}][{}]: {:?}", s+p, l-p, P[s+p][l-p]);
-                            P[l][s].insert(key);
+                        if v.len() == 2 {
+                            if P[p][s].contains(&v[0]) && P[l - p-1 ][s + p+1].contains(&v[1]) {
+                                P[l][s].insert(key);
+                            }
                         }
                     }
                 }
@@ -108,12 +90,17 @@ fn cyk(
         }
     }
 
-
-    if P[n-1][1].len() > 0 {
+    // for i in P.iter().rev() {
+    //     println!("{:?}", i);
+    // }
+    if P[n-1][0].len() > 0 {
+        println!("{}", string);
         return true;
     }
     false
 }
+
+
 
 pub fn part_two(input: &Vec<String>) -> Result<i32, Error> {
     Ok(2) // 363

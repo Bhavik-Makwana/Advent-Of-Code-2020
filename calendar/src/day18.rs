@@ -285,6 +285,36 @@ pub fn calculate(tree: &ParseNode) -> u64 {
     }
 }
 
+fn shunting_yard(expression: &String) -> u64 {
+    let mut terms = Vec::new();
+    let mut ops = Vec::new();
+    let mut it = expression.chars().peekable();
+    while let Some(&c) = it.peek() {
+        match c {
+            '0'..='9' => {
+                it.next();
+                let n = get_number(c, &mut it);
+                terms.push(n);
+            }
+            '+' | '*' => {
+                ops.push(c);
+                it.next();
+            }
+            '(' | ')' => {
+                ops.push(c);
+                it.next();
+            }
+            ' ' => {
+                it.next();
+            }
+            _ => {
+                return Err(format!("unexpected character {}", c));
+            }
+        }
+    }
+
+}
+
 // GRAMMAR
 // Expr := Term + Term | Term * Term | ( Expr )
 // Term := [0..9]+
