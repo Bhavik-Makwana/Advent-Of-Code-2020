@@ -19,31 +19,12 @@ pub fn part_one(input: &Vec<Vec<String>>) -> Result<i64, Error> {
         .map(|x| x.parse::<i64>().unwrap())
         .collect::<VecDeque<i64>>();
 
-    while player1.len() > 0 && player2.len() > 0 {
-        let p1_move = player1.pop_front().unwrap();
-        let p2_move = player2.pop_front().unwrap();
-
-        if p1_move > p2_move {
-            player1.push_back(p1_move);
-            player1.push_back(p2_move);
-        } else {
-            player2.push_back(p2_move);
-            player2.push_back(p1_move);
-        }
-    }
-    if player1.len() > 0 {
-        Ok(player1
-            .iter()
-            .rev()
-            .enumerate()
-            .fold(0, |acc, (i, elem)| acc + (((i + 1) as i64) * elem)))
-    } else {
-        Ok(player2
-            .iter()
-            .rev()
-            .enumerate()
-            .fold(0, |acc, (i, elem)| acc + (((i + 1) as i64) * elem)))
-    }
+    let (_, queue) = recursive_combat(player1.clone(), player2.clone(), true);
+    Ok(queue
+        .iter()
+        .rev()
+        .enumerate()
+        .fold(0, |acc, (i, elem)| acc + (((i + 1) as i64) * elem)))
 }
 
 pub fn part_two(input: &Vec<Vec<String>>) -> Result<i64, Error> {
@@ -63,7 +44,7 @@ pub fn part_two(input: &Vec<Vec<String>>) -> Result<i64, Error> {
         .map(|x| x.parse::<i64>().unwrap())
         .collect::<VecDeque<i64>>();
 
-    let (p1_win, queue) = recursive_combat(player1.clone(), player2.clone());
+    let (_, queue) = recursive_combat(player1.clone(), player2.clone(), false);
     Ok(queue
         .iter()
         .rev()
@@ -74,31 +55,34 @@ pub fn part_two(input: &Vec<Vec<String>>) -> Result<i64, Error> {
 fn recursive_combat(
     mut player1: VecDeque<i64>,
     mut player2: VecDeque<i64>,
+    game_type_1: bool,
 ) -> (bool, VecDeque<i64>) {
     let mut player1_history: HashSet<String> = HashSet::new();
     let mut player2_history: HashSet<String> = HashSet::new();
     while player1.len() > 0 && player2.len() > 0 {
-        let p1_deck_state = player1
-            .iter()
-            .map(|x| x.to_string())
-            .collect::<Vec<String>>()
-            .join("");
-        let p2_deck_state = player2
-            .iter()
-            .map(|x| x.to_string())
-            .collect::<Vec<String>>()
-            .join("");
+        if !game_type_1 {
+            let p1_deck_state = player1
+                .iter()
+                .map(|x| x.to_string())
+                .collect::<Vec<String>>()
+                .join("");
+            let p2_deck_state = player2
+                .iter()
+                .map(|x| x.to_string())
+                .collect::<Vec<String>>()
+                .join("");
 
-        if player1_history.contains(&p1_deck_state) || player2_history.contains(&p2_deck_state) {
-            return (true, player1);
+            if player1_history.contains(&p1_deck_state) || player2_history.contains(&p2_deck_state)
+            {
+                return (true, player1);
+            }
+            player1_history.insert(p1_deck_state);
+            player2_history.insert(p2_deck_state);
         }
-        player1_history.insert(p1_deck_state);
-        player2_history.insert(p2_deck_state);
-
         let p1_move = player1.pop_front().unwrap();
         let p2_move = player2.pop_front().unwrap();
 
-        if player1.len() >= p1_move as usize && player2.len() >= p2_move as usize {
+        if player1.len() >= p1_move as usize && player2.len() >= p2_move as usize && !game_type_1 {
             let mut new_set_p1 = VecDeque::new();
             for i in 0..p1_move {
                 new_set_p1.push_back(player1[i as usize]);
@@ -108,7 +92,7 @@ fn recursive_combat(
             for i in 0..p2_move {
                 new_set_p2.push_back(player2[i as usize]);
             }
-            if recursive_combat(new_set_p1.clone(), new_set_p2.clone()).0 {
+            if recursive_combat(new_set_p1.clone(), new_set_p2.clone(), game_type_1).0 {
                 player1.push_back(p1_move);
 
                 player1.push_back(p2_move);
