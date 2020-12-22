@@ -586,7 +586,7 @@ pub fn part_two(input: &Vec<Vec<String>>) -> Result<i32, Error> {
     // rotate_90_cw_p2(&mut start_node);
     // rotate_90_cw_p2(&mut start_node);
     // rotate_90_cw_p2(&mut start_node);
-    println!("start node {:?}", start_node.image);
+    println!("start node {}", start_node);
     let mut grid: Vec<Vec<Node>> = vec![vec![Default::default(); 4]; 3];
     visited.insert(start_node.clone());
     grid[0][0] = start_node;
