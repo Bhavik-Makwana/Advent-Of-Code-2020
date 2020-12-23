@@ -44,7 +44,7 @@ struct Node {
     next: usize,
 }
 
-fn step(cups: &mut Vec<Node>, current_cup: &mut usize) {
+fn round(cups: &mut Vec<Node>, current_cup: &mut usize) {
     let adj1 = cups[*current_cup].next;
     let adj2 = cups[adj1].next;
     let adj3 = cups[adj2].next;
@@ -62,6 +62,7 @@ fn step(cups: &mut Vec<Node>, current_cup: &mut usize) {
             dest_cup - 1
         };
     }
+    
     cups[*current_cup].next = cups[adj3].next;
     let post_dest = cups[dest_cup].next;
     cups[dest_cup].next = adj1;
@@ -111,7 +112,7 @@ pub fn part_two(input: &String) -> Result<usize, Error> {
     let mut current_cup = cups[0];
     let mut cups = to_linked(&cups);
     for _ in 0..10000000 {
-        step(&mut cups, &mut current_cup);
+        round(&mut cups, &mut current_cup);
     }
     let l1 = cups[1].next;
     let l2 = cups[l1].next;
