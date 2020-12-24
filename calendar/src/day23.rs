@@ -82,6 +82,7 @@ fn round(cups: &mut Vec<Node>, current_cup: &mut usize) {
     *current_cup = cups[*current_cup].next;
 }
 
+// Basically a linked list hashmap
 fn to_linked(cups: &[usize]) -> Vec<Node> {
     let mut linked_list = vec![Node { next: 0, prev: 0 }; cups.len() + 1];
     for window in cups.windows(3) {
